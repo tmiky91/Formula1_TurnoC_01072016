@@ -8,6 +8,7 @@ import java.time.Year;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
@@ -136,7 +137,7 @@ public class FormulaOneDAO {
 		
 	}
 
-	public List<SquadraPiloti> getCoppiePiloti(SimpleWeightedGraph<Driver, DefaultWeightedEdge> grafo, Constructor c) {
+	public List<SquadraPiloti> getCoppiePiloti(Map<Integer, Driver> idMap, Constructor c) {
 		final String sql=	"select r1.driverId as idP1, r2.driverId as idP2, count(*) as cnt " + 
 							"from results as r1, results as r2 " + 
 							"where r1.raceId = r2.raceId " + 
@@ -154,8 +155,11 @@ public class FormulaOneDAO {
 			st.setInt(1, c.getConstructorId());
 			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
-				Driver d1 = new Driver(rs.getInt("idP1"));
-				Driver d2 = new Driver(rs.getInt("idP2"));
+				Driver d1 = idMap.get(rs.getInt("idP1"));
+				Driver d2 = idMap.get(rs.getInt("idP2"));
+				if(d1==null || d2==null) {
+					throw new RuntimeException();
+				}
 				
 				SquadraPiloti sp = new SquadraPiloti(d1, d2, rs.getDouble("cnt"));
 				pilotiComuni.add(sp);
@@ -168,6 +172,34 @@ public class FormulaOneDAO {
 			throw new RuntimeException("SQL Query Error");
 		}
 		
+	}
+
+	public List<Driver> getallDrivers(Map<Integer, Driver> idMap) {
+		final String sql=	"select d.driverId as id " + 
+							"from drivers as d " + 
+							"order by d.driverId";
+		List<Driver> drivers = new LinkedList<>();
+		try {
+			Connection conn = DBConnect.getConnection();
+
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet rs = st.executeQuery();
+			while (rs.next()) {
+				if(!idMap.containsKey(rs.getInt("id"))){
+					Driver d = new Driver(rs.getInt("id"));
+					idMap.put(rs.getInt("id"), d);
+					drivers.add(d);
+				}else {
+					drivers.add(idMap.get(rs.getInt("id")));
+				}
+			}
+
+			conn.close();
+			return drivers;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("SQL Query Error");
+		}
 	}
 	
 }

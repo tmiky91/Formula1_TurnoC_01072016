@@ -1,6 +1,8 @@
 package it.polito.tdp.formulaone.model;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -11,6 +13,12 @@ import it.polito.tdp.formulaone.db.FormulaOneDAO;
 public class Model {
 	
 	private SimpleWeightedGraph<Driver, DefaultWeightedEdge> grafo;
+	private Map<Integer, Driver> idMap;
+	private FormulaOneDAO dao = new FormulaOneDAO();
+	
+	public Model() {
+		idMap = new HashMap<>();
+	}
 
 	public static List<Constructor> getAllConstructor() {
 		FormulaOneDAO dao = new FormulaOneDAO();
@@ -23,8 +31,8 @@ public class Model {
 		Driver migliore=null;
 		grafo = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 		FormulaOneDAO dao = new FormulaOneDAO();
-		
-		List<SquadraPiloti> squadra = dao.getCoppiePiloti(grafo, c);
+		dao.getallDrivers(idMap);
+		List<SquadraPiloti> squadra = dao.getCoppiePiloti(idMap, c);
 		for(SquadraPiloti sp: squadra) {
 			Graphs.addEdgeWithVertices(grafo, sp.getP1(), sp.getP2());
 			DefaultWeightedEdge edge = grafo.getEdge(sp.getP1(), sp.getP2());
