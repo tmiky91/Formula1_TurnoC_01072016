@@ -1,18 +1,21 @@
 package it.polito.tdp.formulaone;
 
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.formulaone.model.Constructor;
 import it.polito.tdp.formulaone.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class FormulaOneController {
 	
-	Model model;
+	
 
     @FXML
     private ResourceBundle resources;
@@ -21,7 +24,7 @@ public class FormulaOneController {
     private URL location;
 
     @FXML
-    private ComboBox<?> boxCostruttori;
+    private ComboBox<Constructor> boxCostruttori;
 
     @FXML
     private TextField textInputK;
@@ -29,9 +32,16 @@ public class FormulaOneController {
     @FXML
     private TextArea txtResult;
 
+	private Model model;
+
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	Constructor c = boxCostruttori.getValue();
+    	if(c!=null) {
+    		txtResult.setText(model.creaGrafo(c));
+    	}else {
+    		showMessage("Errore: Selezione un Costruttore dal menù a tendina");
+    	}
     }
 
     @FXML
@@ -48,6 +58,13 @@ public class FormulaOneController {
     }
     
     public void setModel(Model model){
-    	this.model = model;
+		this.model = model;
+    	boxCostruttori.getItems().addAll(model.getCostruttori());
     }
+    
+    private void showMessage(String message) {
+		Alert alert = new Alert(Alert.AlertType.ERROR);
+		alert.setContentText(message);
+		alert.show();
+	}
 }
