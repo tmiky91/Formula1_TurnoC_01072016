@@ -15,7 +15,7 @@ public class Main extends Application {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("FormulaOne.fxml")) ;
 			BorderPane root = (BorderPane)loader.load();
 			
-			FormulaOneController controller = loader.getController() ;
+			FormulaOneController controller = loader.getController();
 			Model model = new Model() ;
 			controller.setModel(model);
 			
